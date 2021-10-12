@@ -13,5 +13,5 @@ export class UserMutationReponse implements IMutationResponse {
   user?: User;
 
   @Field((_type) => [FieldError], { nullable: true })
-  error?: FieldError[];
+  errors?: FieldError[];
 }
