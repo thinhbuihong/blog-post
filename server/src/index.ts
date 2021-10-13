@@ -7,6 +7,7 @@ import { Post } from "./entities/Post";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/hello";
+import mongoose from "mongoose";
 import {
   ApolloServerPluginLandingPageGraphQLPlayground,
   Context,
@@ -25,6 +26,15 @@ const main = async () => {
   });
 
   const app = express();
+  await mongoose.connect(
+    `mongodb+srv://${process.env.SESSION_DB_USERNAME_DEV_PROD}:${process.env.SESSION_DB_PASSWORD_DEV_PROD}@cluster0.qbyfo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`,
+    {
+      useCreateIndex: true,
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
+      useFindAndModify: false,
+    }
+  );
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
