@@ -8,11 +8,12 @@ import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/hello";
 import mongoose from "mongoose";
-import {
-  ApolloServerPluginLandingPageGraphQLPlayground,
-  Context,
-} from "apollo-server-core";
+import MongoStore from "connect-mongo";
+import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 import { UserResolver } from "./resolvers/user";
+import session from "express-session";
+import { COOKIE_NAME, __prod__ } from "./constants";
+import { Context } from "./types/context";
 
 const main = async () => {
   await createConnection({
@@ -26,14 +27,28 @@ const main = async () => {
   });
 
   const app = express();
-  await mongoose.connect(
-    `mongodb+srv://${process.env.SESSION_DB_USERNAME_DEV_PROD}:${process.env.SESSION_DB_PASSWORD_DEV_PROD}@cluster0.qbyfo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`,
-    {
-      useCreateIndex: true,
-      useUnifiedTopology: true,
-      useNewUrlParser: true,
-      useFindAndModify: false,
-    }
+  const mongoUrl = `mongodb+srv://${process.env.SESSION_DB_USERNAME_DEV_PROD}:${process.env.SESSION_DB_PASSWORD_DEV_PROD}@cluster0.qbyfo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+  await mongoose.connect(mongoUrl, {
+    useCreateIndex: true,
+    useUnifiedTopology: true,
+    useNewUrlParser: true,
+    useFindAndModify: false,
+  });
+
+  app.use(
+    session({
+      store: MongoStore.create({ mongoUrl }),
+      secret: process.env.SESSION_SECRET_DEV_PROD || "",
+      name: COOKIE_NAME,
+      saveUninitialized: false, //dont save empty sessions, right from the start
+      resave: false,
+      cookie: {
+        maxAge: 1000 * 60 * 60,
+        httpOnly: true, //client cant access the cookie
+        secure: __prod__,
+        sameSite: "lax", //protection against CSRF
+      },
+    })
   );
 
   const apolloServer = new ApolloServer({
