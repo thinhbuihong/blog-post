@@ -5,19 +5,19 @@ import { User } from "../entities/User";
 import { Context } from "../types/context";
 import { LoginInput } from "../types/LoginInput";
 import { RegisterInput } from "../types/RegisterInput";
-import { UserMutationReponse } from "../types/UserMutationResponse";
+import { UserMutationResponse } from "../types/UserMutationResponse";
 import { validateRegisterInput } from "../utils/validateRegisterInput";
 
 @Resolver()
 export class UserResolver {
-  @Mutation((_returns) => UserMutationReponse)
+  @Mutation((_returns) => UserMutationResponse)
   async register(
     @Arg("registerInput") registerInput: RegisterInput,
     @Ctx() { req }: Context
   ): // @Arg("email") email: string,
   // @Arg("username") username: string,
   // @Arg("password") password: string
-  Promise<UserMutationReponse> {
+  Promise<UserMutationResponse> {
     const validateRegisterInputErrors = validateRegisterInput(registerInput);
     if (validateRegisterInputErrors) {
       return {
@@ -72,11 +72,11 @@ export class UserResolver {
     }
   }
 
-  @Mutation((_return) => UserMutationReponse)
+  @Mutation((_return) => UserMutationResponse)
   async login(
     @Arg("loginInput") { password, usernameOrEmail }: LoginInput,
     @Ctx() { req }: Context
-  ): Promise<UserMutationReponse> {
+  ): Promise<UserMutationResponse> {
     try {
       const existingUser = await User.findOne(
         usernameOrEmail.includes("@")
