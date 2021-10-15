@@ -15,6 +15,7 @@ import session from "express-session";
 import { COOKIE_NAME, __prod__ } from "./constants";
 import { Context } from "./types/context";
 import { PostResolver } from "./resolvers/post";
+import cors from "cors";
 
 const main = async () => {
   await createConnection({
@@ -28,6 +29,13 @@ const main = async () => {
   });
 
   const app = express();
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true,
+    })
+  );
+
   const mongoUrl = `mongodb+srv://${process.env.SESSION_DB_USERNAME_DEV_PROD}:${process.env.SESSION_DB_PASSWORD_DEV_PROD}@cluster0.qbyfo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
   await mongoose.connect(mongoUrl, {
     useCreateIndex: true,
@@ -65,7 +73,7 @@ const main = async () => {
 
   apolloServer.applyMiddleware({ app, cors: false });
 
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT || 4000;
   app.listen(PORT, () => {
     console.log(
       `server start on port ${PORT}, \nGraphql: http://localhost:${PORT}${apolloServer.graphqlPath}`
