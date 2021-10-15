@@ -1,51 +1,54 @@
 import { useMutation } from "@apollo/client";
 import { Button } from "@chakra-ui/button";
-import { Form, Formik } from "formik";
+import { Form, Formik, FormikHelpers } from "formik";
+import { useRouter } from "next/dist/client/router";
 import InputField from "../components/inputField";
 import Wrapper from "../components/Wrapper";
-import { registerMutation } from "../graphql-client/mutations";
-
-interface UserMutationResponse {
-  code: number;
-  success: boolean;
-  message: string;
-  user: string;
-  errors: string;
-}
-
-interface NewUserInput {
-  username: string;
-  email: string;
-  password: string;
-}
+import { RegisterInput, useRegisrerMutation } from "../generated/graphql";
+import { mapFieldErrors } from "../helpers/mapFieldErrors";
+// import { registerMutation } from "../graphql-client/mutations/mutations";
 
 const Register = () => {
-  const inittialValues: NewUserInput = {
+  const inittialValues: RegisterInput = {
     username: "",
     password: "",
     email: "",
   };
+  const router = useRouter();
 
-  const [registerUser, { data, error }] = useMutation<
-    { register: UserMutationResponse },
-    { registerInput: NewUserInput }
-  >(registerMutation);
+  const [registerUser, { loading: _registerUserLoading, data, error }] =
+    useRegisrerMutation();
+  // const [registerUser, { data, error }] = useMutation<
+  //   { register: UserMutationResponse },
+  //   { registerInput: NewUserInput }
+  // >(registerMutation);
 
-  const onRegisterSubmit = (values: NewUserInput) => {
-    return registerUser({
-      variables: { registerInput: values },
+  const onRegisterSubmit = async (
+    values: RegisterInput,
+    { setErrors, resetForm }: FormikHelpers<RegisterInput>
+  ) => {
+    const response = await registerUser({
+      variables: {
+        registerInput: values,
+      },
     });
+
+    if (response.data?.register.errors) {
+      setErrors(mapFieldErrors(response.data.register.errors));
+    } else {
+      resetForm();
+      router.push("/");
+    }
   };
 
   return (
     <Wrapper>
-      {error && <p>failed to register</p>}
       {data && data.register.success && (
         <p>Register successfully {JSON.stringify(data)}</p>
       )}
 
       <Formik initialValues={inittialValues} onSubmit={onRegisterSubmit}>
-        {({ isSubmitting }) => (
+        {({}) => (
           <Form>
             <InputField
               name="username"
@@ -71,7 +74,7 @@ const Register = () => {
               type="submit"
               colorScheme="teal"
               mt={4}
-              isLoading={isSubmitting}
+              isLoading={_registerUserLoading}
             >
               Register
             </Button>
