@@ -1,17 +1,19 @@
 import { hash, verify } from "argon2";
-import { UserMutationReponse } from "../types/UserMutationResponse";
+import { COOKIE_NAME } from "../constants";
 import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
 import { User } from "../entities/User";
-import { RegisterInput } from "../types/RegisterInput";
-import { validateRegisterInput } from "../utils/validateRegisterInput";
-import { LoginInput } from "../types/LoginInput";
 import { Context } from "../types/context";
+import { LoginInput } from "../types/LoginInput";
+import { RegisterInput } from "../types/RegisterInput";
+import { UserMutationReponse } from "../types/UserMutationResponse";
+import { validateRegisterInput } from "../utils/validateRegisterInput";
 
 @Resolver()
 export class UserResolver {
   @Mutation((_returns) => UserMutationReponse)
   async register(
-    @Arg("registerInput") registerInput: RegisterInput
+    @Arg("registerInput") registerInput: RegisterInput,
+    @Ctx() { req }: Context
   ): // @Arg("email") email: string,
   // @Arg("username") username: string,
   // @Arg("password") password: string
@@ -52,11 +54,13 @@ export class UserResolver {
         email,
       });
 
+      const user = await User.save(newUser);
+      req.session.userId = user.id;
       return {
         code: 200,
         success: true,
         message: "user registration successful",
-        user: await User.save(newUser),
+        user,
       };
     } catch (error) {
       console.log(error);
@@ -121,5 +125,19 @@ export class UserResolver {
         message: `internal server error ${error.message}`,
       };
     }
+  }
+
+  @Mutation((_return) => Boolean)
+  logout(@Ctx() { req, res }: Context): Promise<boolean> {
+    return new Promise((resolve, _reject) => {
+      res.clearCookie(COOKIE_NAME);
+      req.session.destroy((error) => {
+        if (error) {
+          console.log("destroying session error", error.message);
+          resolve(false);
+        }
+        resolve(true);
+      });
+    });
   }
 }

@@ -14,6 +14,7 @@ import { UserResolver } from "./resolvers/user";
 import session from "express-session";
 import { COOKIE_NAME, __prod__ } from "./constants";
 import { Context } from "./types/context";
+import { PostResolver } from "./resolvers/post";
 
 const main = async () => {
   await createConnection({
@@ -39,7 +40,7 @@ const main = async () => {
     session({
       store: MongoStore.create({ mongoUrl }),
       secret: process.env.SESSION_SECRET_DEV_PROD || "",
-      name: COOKIE_NAME,
+      name: COOKIE_NAME, //name of cookie is saved in browser
       saveUninitialized: false, //dont save empty sessions, right from the start
       resave: false,
       cookie: {
@@ -53,7 +54,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [HelloResolver, UserResolver],
+      resolvers: [HelloResolver, UserResolver, PostResolver],
       validate: false,
     }),
     context: ({ req, res }): Context => ({ req, res }),
