@@ -3,7 +3,12 @@ import { Form, Formik, FormikHelpers } from "formik";
 import { useRouter } from "next/dist/client/router";
 import InputField from "../components/inputField";
 import Wrapper from "../components/Wrapper";
-import { LoginInput, useLoginMutation } from "../generated/graphql";
+import {
+  CurrentUserDocument,
+  CurrentUserQuery,
+  LoginInput,
+  useLoginMutation,
+} from "../generated/graphql";
 import { mapFieldErrors } from "../helpers/mapFieldErrors";
 // import { registerMutation } from "../graphql-client/mutations/mutations";
 
@@ -27,6 +32,15 @@ const Login = () => {
     const response = await loginUser({
       variables: {
         loginInput: values,
+      },
+      update(cache, { data }) {
+        // const currentUser = cache.readQuery({query: CurrentUserDocument});
+        if (data?.login.success) {
+          cache.writeQuery<CurrentUserQuery>({
+            query: CurrentUserDocument,
+            data: { currentUser: data.login.user },
+          });
+        }
       },
     });
 
