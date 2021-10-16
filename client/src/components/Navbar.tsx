@@ -1,10 +1,16 @@
 import { Button } from "@chakra-ui/button";
 import { Box, Flex, Heading, Link } from "@chakra-ui/layout";
 import NextLink from "next/link";
-import { useCurrentUserQuery } from "../generated/graphql";
+import {
+  CurrentUserDocument,
+  CurrentUserQuery,
+  useCurrentUserQuery,
+  useLogoutMutation,
+} from "../generated/graphql";
 
 const Navbar = () => {
-  const { data, loading, error } = useCurrentUserQuery();
+  const { data, loading } = useCurrentUserQuery();
+  const [logoutUser, { loading: logoutLoading }] = useLogoutMutation();
 
   let body;
 
@@ -23,7 +29,25 @@ const Navbar = () => {
       </>
     );
   } else {
-    body = <Button>Logout</Button>;
+    body = (
+      <Button
+        onClick={() =>
+          logoutUser({
+            update(cache, { data }) {
+              if (data?.logout) {
+                cache.writeQuery<CurrentUserQuery>({
+                  query: CurrentUserDocument,
+                  data: { currentUser: null },
+                });
+              }
+            },
+          })
+        }
+        isLoading={logoutLoading}
+      >
+        Logout
+      </Button>
+    );
   }
 
   return (

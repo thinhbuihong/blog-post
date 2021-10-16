@@ -1,4 +1,6 @@
 import { Button } from "@chakra-ui/button";
+import { Flex } from "@chakra-ui/layout";
+import { Spinner, useToast } from "@chakra-ui/react";
 import { Form, Formik, FormikHelpers } from "formik";
 import { useRouter } from "next/dist/client/router";
 import InputField from "../components/inputField";
@@ -10,9 +12,13 @@ import {
   useLoginMutation,
 } from "../generated/graphql";
 import { mapFieldErrors } from "../helpers/mapFieldErrors";
+import { useCheckAuth } from "../utils/useCheckAuth";
 // import { registerMutation } from "../graphql-client/mutations/mutations";
 
 const Login = () => {
+  const { data: authData, loading: authLoading } = useCheckAuth();
+  const toast = useToast();
+
   const inittialValues: LoginInput = {
     password: "",
     usernameOrEmail: "",
@@ -48,44 +54,56 @@ const Login = () => {
       setErrors(mapFieldErrors(response.data.login.errors));
     } else {
       resetForm();
+
+      toast({
+        title: "welcome",
+        description: "logged in successfully",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
       router.push("/");
     }
   };
 
   return (
-    <Wrapper>
-      {data && data.login.success && (
-        <p>logged in successfully {JSON.stringify(data)}</p>
+    <>
+      {authLoading || (!authLoading && authData?.currentUser) ? (
+        <Flex justifyContent="center" alignItems="center" minH="100vh">
+          <Spinner></Spinner>
+        </Flex>
+      ) : (
+        <Wrapper>
+          <Formik initialValues={inittialValues} onSubmit={onLoginSubmit}>
+            {({}) => (
+              <Form>
+                <InputField
+                  name="usernameOrEmail"
+                  label="Username or Email"
+                  placeholder="Username or Email"
+                ></InputField>
+
+                <InputField
+                  name="password"
+                  label="Password"
+                  placeholder="Password"
+                  type="password"
+                ></InputField>
+
+                <Button
+                  type="submit"
+                  colorScheme="teal"
+                  mt={4}
+                  isLoading={_loginUserLoading}
+                >
+                  Login
+                </Button>
+              </Form>
+            )}
+          </Formik>
+        </Wrapper>
       )}
-
-      <Formik initialValues={inittialValues} onSubmit={onLoginSubmit}>
-        {({}) => (
-          <Form>
-            <InputField
-              name="usernameOrEmail"
-              label="Username or Email"
-              placeholder="Username or Email"
-            ></InputField>
-
-            <InputField
-              name="password"
-              label="Password"
-              placeholder="Password"
-              type="password"
-            ></InputField>
-
-            <Button
-              type="submit"
-              colorScheme="teal"
-              mt={4}
-              isLoading={_loginUserLoading}
-            >
-              Login
-            </Button>
-          </Form>
-        )}
-      </Formik>
-    </Wrapper>
+    </>
   );
 };
 
