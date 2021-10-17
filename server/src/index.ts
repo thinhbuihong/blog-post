@@ -38,10 +38,10 @@ const main = async () => {
 
   const mongoUrl = `mongodb+srv://${process.env.SESSION_DB_USERNAME_DEV_PROD}:${process.env.SESSION_DB_PASSWORD_DEV_PROD}@cluster0.qbyfo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
   await mongoose.connect(mongoUrl, {
-    useCreateIndex: true,
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
-    useFindAndModify: false,
+    // useCreateIndex: true,
+    // useUnifiedTopology: true,
+    // useNewUrlParser: true,
+    // useFindAndModify: false,
   });
 
   app.use(

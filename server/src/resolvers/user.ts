@@ -7,6 +7,10 @@ import { LoginInput } from "../types/LoginInput";
 import { RegisterInput } from "../types/RegisterInput";
 import { UserMutationResponse } from "../types/UserMutationResponse";
 import { validateRegisterInput } from "../utils/validateRegisterInput";
+import { ForgotPasswordInput } from "../types/ForgotPassword";
+import { sendEmail } from "../utls/sendEmail";
+import { TokenModel } from "../models/Token";
+import { v4 } from "uuid";
 
 @Resolver()
 export class UserResolver {
@@ -149,5 +153,31 @@ export class UserResolver {
         resolve(true);
       });
     });
+  }
+
+  @Mutation((_return) => Boolean)
+  async forgotPassword(
+    @Arg("forgotPasswordInput") forgotPasswordInput: ForgotPasswordInput
+  ): Promise<boolean> {
+    const user = await User.findOne({ email: forgotPasswordInput.email });
+
+    if (!user) {
+      return true;
+    }
+
+    const resetToken = v4();
+    const hashedResetToken = await hash(resetToken);
+
+    const token = await new TokenModel({
+      userId: user.id + "",
+      token: hashedResetToken,
+    }).save();
+
+    await sendEmail(
+      forgotPasswordInput.email,
+      `<a href="http://localhost:3000/change-password?token=${token}&userId=${user.id}">click here to reset your password</a>`
+    );
+
+    return true;
   }
 }
