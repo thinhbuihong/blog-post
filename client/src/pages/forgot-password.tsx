@@ -49,7 +49,7 @@ function ForgotPassword() {
 
   return (
     <>
-      <Wrapper>
+      <Wrapper size="small">
         <Formik
           initialValues={inittialValues}
           onSubmit={onForgotPasswordSubmit}

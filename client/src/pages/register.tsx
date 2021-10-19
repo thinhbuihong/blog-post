@@ -74,7 +74,7 @@ const Register = () => {
           <Spinner></Spinner>
         </Flex>
       ) : (
-        <Wrapper>
+        <Wrapper size="small">
           {data && data.register.success && (
             <p>Register successfully {JSON.stringify(data)}</p>
           )}

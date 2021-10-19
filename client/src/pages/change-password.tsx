@@ -80,7 +80,7 @@ function ChangePassword() {
 
   return (
     <>
-      <Wrapper>
+      <Wrapper size="small">
         <Formik
           initialValues={inittialValues}
           onSubmit={onChangePasswordSubmit}

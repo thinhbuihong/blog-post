@@ -74,7 +74,7 @@ const Login = () => {
           <Spinner></Spinner>
         </Flex>
       ) : (
-        <Wrapper>
+        <Wrapper size="small">
           <Formik initialValues={inittialValues} onSubmit={onLoginSubmit}>
             {({}) => (
               <Form>

@@ -1,15 +1,42 @@
-import Navbar from "../components/Navbar";
+import { Box, Flex, Heading, Link, Stack, Text } from "@chakra-ui/layout";
+import { Spinner } from "@chakra-ui/spinner";
+import NextLink from "next/link";
+import Layout from "../components/Layout";
 import { PostsDocument, usePostsQuery } from "../generated/graphql";
 import { addApolloState, initializeApollo } from "../lib/apolloClient";
 
 const Index = () => {
-  // const { data } = usePostsQuery();
-  // console.log(data);
+  const { data, loading } = usePostsQuery();
   return (
-    <>
-      <Navbar />
-      <h1>hello</h1>
-    </>
+    <Layout>
+      {loading ? (
+        <Flex justifyContent="center" alignItems="center" minH="100vh">
+          <Spinner></Spinner>
+        </Flex>
+      ) : (
+        <Stack spacing={8}>
+          {data?.posts?.map((post) => (
+            <Flex key={post.id} p={5} shadow="md" borderWidth="1px">
+              <Box>
+                <NextLink href={`/posts/${post.id}`}>
+                  <Link>
+                    <Heading fontSize="xl">{post.title}</Heading>
+                  </Link>
+                </NextLink>
+
+                <Text>posted by [user]</Text>
+                <Flex align="center">
+                  <Text mt={4}>
+                    {post.text}
+                    <Box ml="auto">edit button</Box>
+                  </Text>
+                </Flex>
+              </Box>
+            </Flex>
+          ))}
+        </Stack>
+      )}
+    </Layout>
   );
 };
 
