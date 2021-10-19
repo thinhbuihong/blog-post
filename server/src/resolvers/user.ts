@@ -11,6 +11,7 @@ import { ForgotPasswordInput } from "../types/ForgotPassword";
 import { sendEmail } from "../utls/sendEmail";
 import { TokenModel } from "../models/Token";
 import { v4 } from "uuid";
+import { ChangePasswordInput } from "../types/ChangePasswordInput";
 
 @Resolver()
 export class UserResolver {
@@ -165,19 +166,108 @@ export class UserResolver {
       return true;
     }
 
+    await TokenModel.findOneAndDelete({ userId: user.id + "" });
+
     const resetToken = v4();
     const hashedResetToken = await hash(resetToken);
 
-    const token = await new TokenModel({
+    await new TokenModel({
       userId: user.id + "",
       token: hashedResetToken,
     }).save();
 
     await sendEmail(
       forgotPasswordInput.email,
-      `<a href="http://localhost:3000/change-password?token=${token}&userId=${user.id}">click here to reset your password</a>`
+      `<a href="http://localhost:3000/change-password?token=${resetToken}&userId=${user.id}">click here to reset your password</a>`
     );
 
     return true;
+  }
+
+  @Mutation((_return) => UserMutationResponse)
+  async changePassword(
+    @Arg("token") token: string,
+    @Arg("userId") userId: string,
+    @Arg("changePasswordInput") changePasswordInut: ChangePasswordInput,
+    @Ctx() { req }: Context
+  ): Promise<UserMutationResponse> {
+    if (changePasswordInut.newPassword.length <= 4) {
+      return {
+        code: 400,
+        success: false,
+        message: "invalid password",
+        errors: [
+          { field: "newPassword", message: "length must be greater than 4" },
+        ],
+      };
+    }
+
+    try {
+      const resetPasswordTokenRecord = await TokenModel.findOne({ userId });
+      if (!resetPasswordTokenRecord) {
+        return {
+          code: 400,
+          success: false,
+          message: "invalid or expired password reset token",
+          errors: [
+            {
+              field: "token",
+              message: "invalid or expired password reset token",
+            },
+          ],
+        };
+      }
+
+      const resetPasswordTokenValid = verify(
+        resetPasswordTokenRecord.token,
+        token
+      );
+      if (!resetPasswordTokenValid) {
+        return {
+          code: 400,
+          success: false,
+          message: "invalid or expired password reset token",
+          errors: [
+            {
+              field: "token",
+              message: "invalid or expired password reset token",
+            },
+          ],
+        };
+      }
+
+      const user = await User.findOne(parseInt(userId));
+      if (!user) {
+        return {
+          code: 400,
+          success: false,
+          message: "user no longer exists",
+          errors: [{ field: "token", message: "user no longer exists" }],
+        };
+      }
+
+      const updatedPassword = await hash(changePasswordInut.newPassword);
+      await User.update({ id: +userId }, { password: updatedPassword });
+
+      await resetPasswordTokenRecord.deleteOne();
+
+      req.session.userId = user.id;
+      return {
+        code: 200,
+        success: true,
+        message: "userpassword reset successfully",
+        user,
+      };
+    } catch (error) {
+      console.log(error.message);
+      return {
+        code: 500,
+        success: false,
+        message: `internal server error ${error.message}`,
+        errors: [
+          { field: "token", message: `internal server error ${error.message}` },
+        ],
+      };
+    }
   }
 }
