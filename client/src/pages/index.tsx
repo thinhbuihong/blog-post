@@ -25,7 +25,7 @@ const Index = () => {
 
   return (
     <Layout>
-      {loading ? (
+      {loading && !loadingMorePosts ? (
         <Flex justifyContent="center" alignItems="center" minH="100vh">
           <Spinner></Spinner>
         </Flex>

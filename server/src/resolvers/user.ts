@@ -29,6 +29,14 @@ export class UserResolver {
     return await Post.find({ userId: root.id });
   }
 
+  @FieldResolver((_return) => String)
+  email(@Root() root: User, @Ctx() { req }: Context) {
+    if (req.session.userId === root.id) {
+      return root.email;
+    }
+    return "";
+  }
+
   @Query((_return) => User, { nullable: true })
   async currentUser(@Ctx() { req }: Context): Promise<User | undefined | null> {
     if (!req.session.userId) {

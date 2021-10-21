@@ -8,15 +8,22 @@ export const useCheckAuth = () => {
   const { data, loading } = useCurrentUserQuery();
 
   useEffect(() => {
-    if (
-      !loading &&
-      data?.currentUser &&
-      (router.route === "/login" ||
-        router.route === "/register" ||
-        router.route === "/forgot-password" ||
-        router.route === "/change-password")
-    ) {
-      router.push("/");
+    if (!loading) {
+      if (
+        data?.currentUser &&
+        (router.route === "/login" ||
+          router.route === "/register" ||
+          router.route === "/forgot-password" ||
+          router.route === "/change-password")
+      ) {
+        router.push("/");
+      } else if (
+        !data?.currentUser &&
+        router.route !== "/login" &&
+        router.route !== "/register"
+      ) {
+        router.push("/login");
+      }
     }
   }, [data, loading, router]);
 

@@ -10,7 +10,20 @@ import {
 
 const Navbar = () => {
   const { data, loading } = useCurrentUserQuery();
-  const [logoutUser, { loading: logoutLoading }] = useLogoutMutation();
+  const [logout, { loading: logoutLoading }] = useLogoutMutation();
+
+  const logoutUser = () => {
+    logout({
+      update(cache, { data }) {
+        if (data?.logout) {
+          cache.writeQuery<CurrentUserQuery>({
+            query: CurrentUserDocument,
+            data: { currentUser: null },
+          });
+        }
+      },
+    });
+  };
 
   let body;
 
@@ -30,23 +43,14 @@ const Navbar = () => {
     );
   } else {
     body = (
-      <Button
-        onClick={() =>
-          logoutUser({
-            update(cache, { data }) {
-              if (data?.logout) {
-                cache.writeQuery<CurrentUserQuery>({
-                  query: CurrentUserDocument,
-                  data: { currentUser: null },
-                });
-              }
-            },
-          })
-        }
-        isLoading={logoutLoading}
-      >
-        Logout
-      </Button>
+      <Flex>
+        <NextLink href="/create-post">
+          <Button mr={4}>Create post</Button>
+        </NextLink>
+        <Button onClick={logoutUser} isLoading={logoutLoading}>
+          Logout
+        </Button>
+      </Flex>
     );
   }
 
