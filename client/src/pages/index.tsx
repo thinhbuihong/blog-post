@@ -2,13 +2,14 @@ import { NetworkStatus } from "@apollo/client";
 import { Button } from "@chakra-ui/button";
 import { Box, Flex, Heading, Link, Stack, Text } from "@chakra-ui/layout";
 import { Spinner } from "@chakra-ui/spinner";
+import { GetStaticProps } from "next";
 import NextLink from "next/link";
 import Layout from "../components/Layout";
 import PostEditDeleteButtons from "../components/PostEditDeleteButton";
 import { PostsDocument, usePostsQuery } from "../generated/graphql";
 import { addApolloState, initializeApollo } from "../lib/apolloClient";
 
-const limit = 3;
+export const limit = 3;
 
 const Index = () => {
   const { data, loading, error, fetchMore, networkStatus } = usePostsQuery({
@@ -68,7 +69,7 @@ const Index = () => {
   );
 };
 
-export const getStaticProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const apolloClient = initializeApollo();
 
   await apolloClient.query({

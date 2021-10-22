@@ -2,3 +2,4 @@ upgrate mongoose
 replace mongoose with reddit
 formik
 cache graphql client & ssr
+get static paths
