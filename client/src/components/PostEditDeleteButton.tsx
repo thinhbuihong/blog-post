@@ -14,16 +14,12 @@ interface PostEditDeleteButtonsProps {
   postUserId: string;
 }
 
-// const PostEditDeleteButtons = ({
-//   postId,
-//   postUserId,
-// }: PostEditDeleteButtonsProps) => {
-const PostEditDeleteButtons = () => {
-  const router = useRouter();
+const PostEditDeleteButtons = ({
+  postId,
+  postUserId,
+}: PostEditDeleteButtonsProps) => {
   // const { data: meData } = useMeQuery();
   // const [deletePost, _] = useDeletePostMutation();
-
-  const postId = 1;
 
   const onPostDelete = async (postId: string) => {
     // await deletePost({
@@ -59,7 +55,7 @@ const PostEditDeleteButtons = () => {
 
   return (
     <Box>
-      <NextLink href={`/post/edit/${postId}`}>
+      <NextLink href={`/posts/edit/${postId}`}>
         <IconButton icon={<EditIcon />} aria-label="edit" mr={4} />
       </NextLink>
 

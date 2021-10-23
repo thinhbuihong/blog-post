@@ -6,12 +6,18 @@ import { GetStaticProps } from "next";
 import NextLink from "next/link";
 import Layout from "../components/Layout";
 import PostEditDeleteButtons from "../components/PostEditDeleteButton";
-import { PostsDocument, usePostsQuery } from "../generated/graphql";
+import {
+  PostsDocument,
+  useCurrentUserQuery,
+  usePostsQuery,
+} from "../generated/graphql";
 import { addApolloState, initializeApollo } from "../lib/apolloClient";
 
 export const limit = 3;
 
 const Index = () => {
+  const { data: currentUserData } = useCurrentUserQuery();
+
   const { data, loading, error, fetchMore, networkStatus } = usePostsQuery({
     variables: { limit },
     //component nao reder data, se rerender khi networkstatus thay doi (fetchmoere)
@@ -45,7 +51,12 @@ const Index = () => {
                 <Flex align="center">
                   <Text mt={4}>{post.textSnippet}</Text>
                   <Box ml="auto">
-                    <PostEditDeleteButtons />
+                    {currentUserData?.currentUser?.id === post.user.id && (
+                      <PostEditDeleteButtons
+                        postId={post.id}
+                        postUserId={post.user.id}
+                      />
+                    )}
                   </Box>
                 </Flex>
               </Box>

@@ -59,8 +59,8 @@ const Post = () => {
       <Box mb={4}>{data.post.text}</Box>
       <Flex justifyContent="space-between" alignItems="center">
         <PostEditDeleteButtons
-        // postId={data.post.id}
-        // postUserId={data.post.userId.toString()}
+          postId={data.post.id}
+          postUserId={data.post.userId.toString()}
         />
         <NextLink href="/">
           <Button>Back to Homepage</Button>

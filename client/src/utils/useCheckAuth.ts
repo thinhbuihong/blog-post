@@ -10,6 +10,7 @@ export const useCheckAuth = () => {
   useEffect(() => {
     if (!loading) {
       if (
+        //already login
         data?.currentUser &&
         (router.route === "/login" ||
           router.route === "/register" ||
@@ -18,6 +19,7 @@ export const useCheckAuth = () => {
       ) {
         router.push("/");
       } else if (
+        //not logged in yet
         !data?.currentUser &&
         router.route !== "/login" &&
         router.route !== "/register"
