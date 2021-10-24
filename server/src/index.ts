@@ -16,6 +16,7 @@ import { COOKIE_NAME, __prod__ } from "./constants";
 import { Context } from "./types/context";
 import { PostResolver } from "./resolvers/post";
 import cors from "cors";
+import { Upvote } from "./entities/Upvote";
 
 const main = async () => {
   await createConnection({
@@ -25,7 +26,7 @@ const main = async () => {
     password: process.env.DB_PASSWORD_DEV,
     logging: true,
     synchronize: true,
-    entities: [User, Post],
+    entities: [User, Post, Upvote],
   });
 
   const app = express();
