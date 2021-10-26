@@ -28,6 +28,13 @@ export class Post extends BaseEntity {
   text!: string;
 
   @Field()
+  @Column({ default: 0 })
+  points!: number;
+
+  @Field()
+  voteType!: number;
+
+  @Field()
   @CreateDateColumn({ type: "timestamptz" })
   createdAt: Date;
 

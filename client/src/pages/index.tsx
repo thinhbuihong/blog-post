@@ -6,6 +6,7 @@ import { GetStaticProps } from "next";
 import NextLink from "next/link";
 import Layout from "../components/Layout";
 import PostEditDeleteButtons from "../components/PostEditDeleteButton";
+import UpvoteSection from "../components/UpvoteSection";
 import {
   PostsDocument,
   useCurrentUserQuery,
@@ -18,7 +19,7 @@ export const limit = 3;
 const Index = () => {
   const { data: currentUserData } = useCurrentUserQuery();
 
-  const { data, loading, error, fetchMore, networkStatus } = usePostsQuery({
+  const { data, loading, fetchMore, networkStatus } = usePostsQuery({
     variables: { limit },
     //component nao reder data, se rerender khi networkstatus thay doi (fetchmoere)
     notifyOnNetworkStatusChange: true,
@@ -40,6 +41,7 @@ const Index = () => {
         <Stack spacing={8}>
           {data?.posts?.paginatedPosts.map((post) => (
             <Flex key={post.id} p={5} shadow="md" borderWidth="1px">
+              <UpvoteSection post={post} />
               <Box flex={1}>
                 <NextLink href={`/posts/${post.id}`}>
                   <Link>
