@@ -5,8 +5,10 @@ import {
   NormalizedCacheObject,
 } from "@apollo/client";
 import merge from "deepmerge";
+import { IncomingHttpHeaders } from "http";
 import isEqual from "lodash/isEqual";
 import { useMemo } from "react";
+import fetch from "isomorphic-unfetch";
 import { Post } from "../generated/graphql";
 
 export const APOLLO_STATE_PROP_NAME = "__APOLLO_STATE__";
@@ -17,12 +19,24 @@ interface IApolloStateProps {
   [APOLLO_STATE_PROP_NAME]?: NormalizedCacheObject;
 }
 
-function createApolloClient() {
+function createApolloClient(headers?: IncomingHttpHeaders) {
+  const enhancedFetch = (url: RequestInfo, init: RequestInit) => {
+    return fetch(url, {
+      ...init,
+      headers: {
+        ...init.headers,
+        "Access-Control-Allow-Origin": "*",
+        Cookie: headers?.cookie ?? "",
+      },
+    });
+  };
+
   return new ApolloClient({
     ssrMode: typeof window === "undefined",
     link: new HttpLink({
       uri: "http://localhost:4000/graphql", // Server URL (must be absolute)
       credentials: "include", // Additional fetch() options like `credentials` or `headers`
+      fetch: enhancedFetch,
     }),
     cache: new InMemoryCache({
       typePolicies: {
@@ -55,10 +69,14 @@ function createApolloClient() {
   });
 }
 
-export function initializeApollo(
-  initialState: NormalizedCacheObject | null = null
-) {
-  const _apolloClient = apolloClient ?? createApolloClient();
+export function initializeApollo({
+  headers,
+  initialState,
+}: {
+  headers?: IncomingHttpHeaders;
+  initialState?: NormalizedCacheObject;
+}) {
+  const _apolloClient = apolloClient ?? createApolloClient(headers);
 
   // If your page has Next.js data fetching methods that use Apollo Client, the initial state
   // gets hydrated here
@@ -101,7 +119,10 @@ export function addApolloState(
 
 export function useApollo(pageProps: IApolloStateProps) {
   const state = pageProps[APOLLO_STATE_PROP_NAME];
-  const store = useMemo(() => initializeApollo(state), [state]);
+  const store = useMemo(
+    () => initializeApollo({ initialState: state }),
+    [state]
+  );
   return store;
 }
 1;

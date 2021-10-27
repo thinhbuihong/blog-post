@@ -2,7 +2,7 @@ import { NetworkStatus } from "@apollo/client";
 import { Button } from "@chakra-ui/button";
 import { Box, Flex, Heading, Link, Stack, Text } from "@chakra-ui/layout";
 import { Spinner } from "@chakra-ui/spinner";
-import { GetStaticProps } from "next";
+import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import NextLink from "next/link";
 import Layout from "../components/Layout";
 import PostEditDeleteButtons from "../components/PostEditDeleteButton";
@@ -82,8 +82,12 @@ const Index = () => {
   );
 };
 
-export const getStaticProps: GetStaticProps = async () => {
-  const apolloClient = initializeApollo();
+export const getServerSideProps: GetServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const apolloClient = initializeApollo({
+    headers: context.req.headers,
+  });
 
   await apolloClient.query({
     query: PostsDocument,
