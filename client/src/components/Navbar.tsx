@@ -1,3 +1,4 @@
+import { Reference } from "@apollo/client";
 import { Button } from "@chakra-ui/button";
 import { Box, Flex, Heading, Link } from "@chakra-ui/layout";
 import NextLink from "next/link";
@@ -7,22 +8,45 @@ import {
   useCurrentUserQuery,
   useLogoutMutation,
 } from "../generated/graphql";
+import { initializeApollo } from "../lib/apolloClient";
 
 const Navbar = () => {
   const { data, loading } = useCurrentUserQuery();
   const [logout, { loading: logoutLoading }] = useLogoutMutation();
 
-  const logoutUser = () => {
-    logout({
-      update(cache, { data }) {
-        if (data?.logout) {
-          cache.writeQuery<CurrentUserQuery>({
-            query: CurrentUserDocument,
-            data: { currentUser: null },
-          });
-        }
-      },
+  const logoutUser = async () => {
+    await logout({
+      // update(cache, { data }) {
+      // 	if (data?.logout) {
+      // 		cache.writeQuery<CurrentUserQuery>({
+      // 			query: CurrentUserDocument,
+      // 			data: { currentUser: null }
+      // 		})
+      // 		cache.modify({
+      // 			fields: {
+      // 				posts(existing) {
+      // 					existing.paginatedPosts.forEach((post: Reference) => {
+      // 						cache.writeFragment({
+      // 							id: post.__ref, // `Post:17`
+      // 							fragment: gql`
+      // 								fragment VoteType on Post {
+      // 									voteType
+      // 								}
+      // 							`,
+      // 							data: {
+      // 								voteType: 0
+      // 							}
+      // 						})
+      // 					})
+      // 					return existing
+      // 				}
+      // 			}
+      // 		})
+      // 	}
+      // }
     });
+    const apolloClient = initializeApollo({});
+    apolloClient.resetStore();
   };
 
   let body;

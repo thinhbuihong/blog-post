@@ -36,8 +36,12 @@ export class PostResolver {
   }
 
   @FieldResolver((_return) => User)
-  async user(@Root() root: Post) {
-    return await User.findOne(root.userId);
+  async user(
+    @Root() root: Post,
+    @Ctx() { dataLoaders: { userLoader } }: Context
+  ) {
+    // return await User.findOne(root.userId);
+    return await userLoader.load(root.userId);
   }
 
   @FieldResolver((_return) => Int)
@@ -232,6 +236,7 @@ export class PostResolver {
         post = await transactionEtityManager.save(post);
       }
 
+      //chua check userid
       return {
         code: 200,
         success: true,

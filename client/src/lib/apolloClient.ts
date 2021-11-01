@@ -1,5 +1,6 @@
 import {
   ApolloClient,
+  from,
   HttpLink,
   InMemoryCache,
   NormalizedCacheObject,
@@ -10,6 +11,8 @@ import isEqual from "lodash/isEqual";
 import { useMemo } from "react";
 import fetch from "isomorphic-unfetch";
 import { Post } from "../generated/graphql";
+import { onError } from "@apollo/client/link/error";
+import Router from "next/router";
 
 export const APOLLO_STATE_PROP_NAME = "__APOLLO_STATE__";
 
@@ -18,6 +21,18 @@ let apolloClient: ApolloClient<NormalizedCacheObject>;
 interface IApolloStateProps {
   [APOLLO_STATE_PROP_NAME]?: NormalizedCacheObject;
 }
+
+const errorLink = onError((errors) => {
+  console.log(222222222, errors);
+  if (
+    errors.graphQLErrors &&
+    errors.graphQLErrors[0].extensions?.code === "UNAUTHENTICATED" &&
+    errors.response
+  ) {
+    errors.response.errors = undefined;
+    Router.replace("/login");
+  }
+});
 
 function createApolloClient(headers?: IncomingHttpHeaders) {
   const enhancedFetch = (url: RequestInfo, init: RequestInit) => {
@@ -31,13 +46,16 @@ function createApolloClient(headers?: IncomingHttpHeaders) {
     });
   };
 
+  const httpLink = new HttpLink({
+    uri: "http://localhost:4000/graphql", // Server URL (must be absolute)
+    credentials: "include", // Additional fetch() options like `credentials` or `headers`
+    fetch: enhancedFetch,
+  });
+
   return new ApolloClient({
     ssrMode: typeof window === "undefined",
-    link: new HttpLink({
-      uri: "http://localhost:4000/graphql", // Server URL (must be absolute)
-      credentials: "include", // Additional fetch() options like `credentials` or `headers`
-      fetch: enhancedFetch,
-    }),
+    // link: httpLink,
+    link: from([errorLink, httpLink]),
     cache: new InMemoryCache({
       typePolicies: {
         Query: {

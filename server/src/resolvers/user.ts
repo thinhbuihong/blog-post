@@ -16,7 +16,7 @@ import { RegisterInput } from "../types/RegisterInput";
 import { UserMutationResponse } from "../types/UserMutationResponse";
 import { validateRegisterInput } from "../utils/validateRegisterInput";
 import { ForgotPasswordInput } from "../types/ForgotPassword";
-import { sendEmail } from "../utls/sendEmail";
+import { sendEmail } from "../utils/sendEmail";
 import { TokenModel } from "../models/Token";
 import { v4 } from "uuid";
 import { ChangePasswordInput } from "../types/ChangePasswordInput";

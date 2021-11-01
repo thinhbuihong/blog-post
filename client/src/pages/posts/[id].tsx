@@ -76,7 +76,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   //   { params: { id: '16'} }
   // ]
 
-  const apolloClient = initializeApollo();
+  const apolloClient = initializeApollo({});
 
   const { data } = await apolloClient.query<PostIdsQuery>({
     query: PostIdsDocument,
@@ -95,7 +95,7 @@ export const getStaticProps: GetStaticProps<
   { [key: string]: any },
   { id: string }
 > = async ({ params }) => {
-  const apolloClient = initializeApollo();
+  const apolloClient = initializeApollo({});
 
   await apolloClient.query<PostQuery>({
     query: PostDocument,

@@ -14,6 +14,7 @@ import {
 } from "../generated/graphql";
 import { mapFieldErrors } from "../helpers/mapFieldErrors";
 import { useCheckAuth } from "../utils/useCheckAuth";
+import { initializeApollo } from "../lib/apolloClient";
 // import { registerMutation } from "../graphql-client/mutations/mutations";
 
 const Login = () => {
@@ -63,6 +64,10 @@ const Login = () => {
         duration: 2000,
         isClosable: true,
       });
+
+      const apolloClient = initializeApollo({});
+      apolloClient.resetStore();
+
       router.push("/");
     }
   };

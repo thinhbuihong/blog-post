@@ -3,6 +3,7 @@ import { Flex, IconButton } from "@chakra-ui/react";
 import { useState } from "react";
 import {
   PostWithUserInfoFragment,
+  useCurrentUserQuery,
   useVoteMutation,
   VoteType,
 } from "../generated/graphql";
@@ -17,6 +18,7 @@ enum VoteTypeValues {
 }
 
 const UpvoteSection = ({ post }: UpvoteSectionProps) => {
+  const { data: currentUserData } = useCurrentUserQuery();
   const [vote, { loading }] = useVoteMutation();
 
   const [loadingState, setLoadingState] = useState<
@@ -56,6 +58,7 @@ const UpvoteSection = ({ post }: UpvoteSectionProps) => {
         colorScheme={
           post.voteType === VoteTypeValues.Upvote ? "green" : undefined
         }
+        disabled={!currentUserData?.currentUser}
       />
       {post.points}
       <IconButton
@@ -70,6 +73,7 @@ const UpvoteSection = ({ post }: UpvoteSectionProps) => {
         colorScheme={
           post.voteType === VoteTypeValues.Downvote ? "red" : undefined
         }
+        // disabled={!currentUserData?.currentUser}
       />
     </Flex>
   );
