@@ -51,10 +51,7 @@ export class UserResolver {
   async register(
     @Arg("registerInput") registerInput: RegisterInput,
     @Ctx() { req }: Context
-  ): // @Arg("email") email: string,
-  // @Arg("username") username: string,
-  // @Arg("password") password: string
-  Promise<UserMutationResponse> {
+  ): Promise<UserMutationResponse> {
     const validateRegisterInputErrors = validateRegisterInput(registerInput);
     if (validateRegisterInputErrors) {
       return {

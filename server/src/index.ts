@@ -52,7 +52,7 @@ const main = async () => {
       secret: process.env.SESSION_SECRET_DEV_PROD || "",
       name: COOKIE_NAME, //name of cookie is saved in browser
       saveUninitialized: false, //dont save empty sessions, right from the start
-      resave: false,
+      resave: false, //true se tu dong luu lai session trong session store ngay ca khi session ko doi #sc
       cookie: {
         maxAge: 1000 * 60 * 60,
         httpOnly: true, //client cant access the cookie

@@ -8,7 +8,7 @@ import {
   Heading,
   Spinner,
 } from "@chakra-ui/react";
-import { GetStaticPaths, GetStaticProps } from "next";
+import { GetStaticPaths, GetStaticProps, NextPage } from "next";
 import { useRouter } from "next/router";
 import Layout from "../../components/Layout";
 import {
@@ -23,7 +23,7 @@ import { limit } from "../index";
 import NextLink from "next/link";
 import PostEditDeleteButtons from "../../components/PostEditDeleteButton";
 
-const Post = () => {
+const Post: NextPage = () => {
   const router = useRouter();
   const { data, loading, error } = usePostQuery({
     variables: { id: router.query.id as string },
@@ -85,7 +85,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   return {
     paths: data.posts!.paginatedPosts.map((post) => ({
-      params: { id: `${post.id}` },
+      params: { id: post.id },
     })),
     fallback: "blocking",
   };

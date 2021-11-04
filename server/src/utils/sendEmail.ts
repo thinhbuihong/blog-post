@@ -18,7 +18,7 @@ export const sendEmail = async (to: string, html: string) => {
       pass: testAccount.pass, // generated ethereal password
     },
     tls: {
-      rejectUnauthorized: false, //avoid nodejs self signed certificate error
+      rejectUnauthorized: false, //avoid nodejs self signed certificate error #sc
     },
   });
 
