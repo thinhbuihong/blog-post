@@ -4,9 +4,14 @@ import Layout from "../components/Layout";
 import { Formik, Form } from "formik";
 
 import NextLink from "next/link";
-import { CreatePostInput, useCreatePostMutation } from "../generated/graphql";
+import {
+  CreatePostInput,
+  PaginatedPosts,
+  useCreatePostMutation,
+} from "../generated/graphql";
 import router from "next/router";
 import InputField from "../components/inputField";
+import { Reference } from "@apollo/client";
 
 const CreatePost = () => {
   const { data: authData, loading: authLoading } = useCheckAuth();
@@ -21,7 +26,11 @@ const CreatePost = () => {
       update(cache, { data }) {
         cache.modify({
           fields: {
-            posts(existing) {
+            posts(
+              existing: Omit<PaginatedPosts, "paginatedPosts"> & {
+                paginatedPosts: Reference[];
+              }
+            ) {
               if (data?.createPost.success && data.createPost.post) {
                 // Post:new_id
                 const newPostRef = cache.identify(data.createPost.post);
@@ -37,6 +46,7 @@ const CreatePost = () => {
 
                 return newPostsAfterCreation;
               }
+              return existing;
             },
           },
         });

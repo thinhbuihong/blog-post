@@ -87,6 +87,7 @@ export const getServerSideProps: GetServerSideProps = async (
 ) => {
   const apolloClient = initializeApollo({
     headers: context.req.headers,
+    //truyen header tu client de nextjs gui kem toi server
   });
 
   await apolloClient.query({

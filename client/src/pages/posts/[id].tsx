@@ -8,7 +8,12 @@ import {
   Heading,
   Spinner,
 } from "@chakra-ui/react";
-import { GetStaticPaths, GetStaticProps, NextPage } from "next";
+import {
+  GetStaticPaths,
+  GetStaticProps,
+  GetStaticPropsContext,
+  NextPage,
+} from "next";
 import { useRouter } from "next/router";
 import Layout from "../../components/Layout";
 import {
@@ -94,7 +99,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps<
   { [key: string]: any },
   { id: string }
-> = async ({ params }) => {
+> = async ({ params }: GetStaticPropsContext) => {
   const apolloClient = initializeApollo({});
 
   await apolloClient.query<PostQuery>({
