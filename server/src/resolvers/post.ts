@@ -38,6 +38,7 @@ export class PostResolver {
   @FieldResolver((_return) => User)
   async user(
     @Root() root: Post,
+    //dataloader
     @Ctx() { dataLoaders: { userLoader } }: Context
   ) {
     // return await User.findOne(root.userId);
@@ -45,10 +46,15 @@ export class PostResolver {
   }
 
   @FieldResolver((_return) => Int)
-  async voteType(@Root() root: Post, @Ctx() { req }: Context) {
+  async voteType(@Root() root: Post, @Ctx() { req, dataLoaders }: Context) {
     if (!req.session.userId) return 0;
 
-    const existingVote = await Upvote.findOne({
+    // const existingVote = await Upvote.findOne({
+    //   postId: root.id,
+    //   userId: req.session.userId,
+    // });
+
+    const existingVote = await dataLoaders.voteTypeLoader.load({
       postId: root.id,
       userId: req.session.userId,
     });

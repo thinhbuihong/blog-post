@@ -20,6 +20,8 @@ import { Upvote } from "./entities/Upvote";
 import { buildDataLoaders } from "./utils/dataLoaders";
 
 const main = async () => {
+  process.stdout.write("\u001b[3J\u001b[2J\u001b[1J");
+  console.clear();
   const connection = await createConnection({
     type: "postgres",
     database: "reddit",
@@ -86,6 +88,7 @@ const main = async () => {
       `server start on port ${PORT}, \nGraphql: http://localhost:${PORT}${apolloServer.graphqlPath}`
     );
   });
+  console.log("=".repeat(200));
 };
 
 main().catch((err) => console.log(err));
