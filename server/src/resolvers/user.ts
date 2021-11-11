@@ -1,5 +1,6 @@
 import { hash, verify } from "argon2";
-import { COOKIE_NAME } from "../constants";
+import { plainToClass } from "class-transformer";
+import { validate } from "class-validator";
 import {
   Arg,
   Ctx,
@@ -9,18 +10,20 @@ import {
   Resolver,
   Root,
 } from "type-graphql";
+import { v4 } from "uuid";
+import { COOKIE_NAME } from "../constants";
+import { Post } from "../entities/Post";
 import { User } from "../entities/User";
+import { TokenModel } from "../models/Token";
+import { ChangePasswordInput } from "../types/ChangePasswordInput";
 import { Context } from "../types/context";
+// import { validateRegisterInput } from "../utils/validateRegisterInput";
+import { ForgotPasswordInput } from "../types/ForgotPassword";
 import { LoginInput } from "../types/LoginInput";
 import { RegisterInput } from "../types/RegisterInput";
 import { UserMutationResponse } from "../types/UserMutationResponse";
-import { validateRegisterInput } from "../utils/validateRegisterInput";
-import { ForgotPasswordInput } from "../types/ForgotPassword";
+import { mapFieldErrors } from "../utils/mapFieldErros";
 import { sendEmail } from "../utils/sendEmail";
-import { TokenModel } from "../models/Token";
-import { v4 } from "uuid";
-import { ChangePasswordInput } from "../types/ChangePasswordInput";
-import { Post } from "../entities/Post";
 
 @Resolver((_of) => User)
 export class UserResolver {
@@ -36,6 +39,7 @@ export class UserResolver {
     }
     return "";
   }
+  //=====================================================================
 
   @Query((_return) => User, { nullable: true })
   async currentUser(@Ctx() { req }: Context): Promise<User | undefined | null> {
@@ -52,12 +56,17 @@ export class UserResolver {
     @Arg("registerInput") registerInput: RegisterInput,
     @Ctx() { req }: Context
   ): Promise<UserMutationResponse> {
-    const validateRegisterInputErrors = validateRegisterInput(registerInput);
-    if (validateRegisterInputErrors) {
+    const user = plainToClass(User, registerInput, {
+      excludeExtraneousValues: true,
+    });
+    const errors = await validate(user);
+    if (errors.length > 0) {
+      console.log("validation failed. errors: ", errors);
       return {
         code: 400,
         success: false,
-        ...validateRegisterInputErrors,
+        message: "validation failed",
+        errors: mapFieldErrors(errors),
       };
     }
 
@@ -111,6 +120,24 @@ export class UserResolver {
     @Arg("loginInput") { password, usernameOrEmail }: LoginInput,
     @Ctx() { req }: Context
   ): Promise<UserMutationResponse> {
+    const user = plainToClass(
+      User,
+      { password, usernameOrEmail },
+      {
+        excludeExtraneousValues: true,
+      }
+    );
+    const errors = await validate(user, { skipMissingProperties: true });
+    if (errors.length > 0) {
+      console.log("validation failed. errors: ", errors);
+      return {
+        code: 400,
+        success: false,
+        message: "validation failed",
+        errors: mapFieldErrors(errors),
+      };
+    }
+
     try {
       const existingUser = await User.findOne(
         usernameOrEmail.includes("@")

@@ -1,3 +1,5 @@
+import { Expose } from "class-transformer";
+import { IsEmail, IsString, Length } from "class-validator";
 import { Field, ID, ObjectType } from "type-graphql";
 import {
   BaseEntity,
@@ -20,13 +22,21 @@ export class User extends BaseEntity {
 
   @Field()
   @Column({ unique: true })
+  @Expose()
+  @Length(4, 99, { groups: ["register"] })
+  @IsString()
   username!: string;
 
   @Field()
   @Column({ unique: true })
+  @Expose()
+  @IsEmail(undefined, { groups: ["register"] })
   email!: string;
 
   @Column()
+  @Expose()
+  @Length(4)
+  @IsString()
   password!: string;
 
   @Field()
