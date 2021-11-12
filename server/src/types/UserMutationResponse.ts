@@ -1,4 +1,4 @@
-import { User } from "../entities/User";
+import { User } from "../entities/User.entity";
 import { Field, ObjectType } from "type-graphql";
 import { IMutationResponse } from "./MutationResponse";
 import { FieldError } from "./FieldError";

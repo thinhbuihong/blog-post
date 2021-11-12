@@ -1,5 +1,5 @@
 import { Field, ObjectType } from "type-graphql";
-import { Post } from "../entities/Post";
+import { Post } from "../entities/Post.entity";
 import { FieldError } from "./FieldError";
 import { IMutationResponse } from "./MutationResponse";
 

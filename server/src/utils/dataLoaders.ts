@@ -1,6 +1,6 @@
 import DataLoader from "dataloader";
-import { Upvote } from "../entities/Upvote";
-import { User } from "../entities/User";
+import { Upvote } from "../entities/Upvote.entity";
+import { User } from "../entities/User.entity";
 
 interface VoteTypeCondition {
   postId: number;

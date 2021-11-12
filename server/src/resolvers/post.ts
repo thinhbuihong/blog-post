@@ -13,9 +13,9 @@ import {
   registerEnumType,
 } from "type-graphql";
 import { FindManyOptions, LessThan } from "typeorm";
-import { Post } from "../entities/Post";
-import { Upvote } from "../entities/Upvote";
-import { User } from "../entities/User";
+import { Post } from "../entities/Post.entity";
+import { Upvote } from "../entities/Upvote.entity";
+import { User } from "../entities/User.entity";
 import { checkAuth } from "../middleware/checkAuth";
 import { Context } from "../types/context";
 import { CreatePostInput } from "../types/CreatePostInput";

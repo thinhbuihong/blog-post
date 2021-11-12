@@ -12,8 +12,8 @@ import {
 } from "type-graphql";
 import { v4 } from "uuid";
 import { COOKIE_NAME } from "../constants";
-import { Post } from "../entities/Post";
-import { User } from "../entities/User";
+import { Post } from "../entities/Post.entity";
+import { User } from "../entities/User.entity";
 import { TokenModel } from "../models/Token";
 import { ChangePasswordInput } from "../types/ChangePasswordInput";
 import { Context } from "../types/context";
