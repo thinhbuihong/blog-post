@@ -1,10 +1,10 @@
-import { Reference } from "@apollo/client";
+// import { Reference } from "@apollo/client";
 import { Button } from "@chakra-ui/button";
 import { Box, Flex, Heading, Link } from "@chakra-ui/layout";
 import NextLink from "next/link";
 import {
-  CurrentUserDocument,
-  CurrentUserQuery,
+  // CurrentUserDocument,
+  // CurrentUserQuery,
   useCurrentUserQuery,
   useLogoutMutation,
 } from "../generated/graphql";

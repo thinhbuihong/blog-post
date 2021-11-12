@@ -27,7 +27,7 @@ const Login = () => {
   };
   const router = useRouter();
 
-  const [loginUser, { loading: _loginUserLoading, data }] = useLoginMutation();
+  const [loginUser, { loading: _loginUserLoading }] = useLoginMutation();
   // const [registerUser, { data, error }] = useMutation<
   //   { register: UserMutationResponse },
   //   { registerInput: NewUserInput }

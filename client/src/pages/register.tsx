@@ -1,4 +1,3 @@
-import { useMutation } from "@apollo/client";
 import { Button } from "@chakra-ui/button";
 import { Flex } from "@chakra-ui/layout";
 import { useToast } from "@chakra-ui/react";
@@ -27,7 +26,7 @@ const Register = () => {
   };
   const router = useRouter();
 
-  const [registerUser, { loading: _registerUserLoading, data, error }] =
+  const [registerUser, { loading: _registerUserLoading, data }] =
     useRegisrerMutation();
   // const [registerUser, { data, error }] = useMutation<
   //   { register: UserMutationResponse },

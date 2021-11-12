@@ -1,20 +1,29 @@
 module.exports = {
   ...(process.env.NODE_ENV === "dev"
     ? ({
-      type: "postgres",
       database: "reddit",
       username: "postgres",
       password: "buihongthinh",
-      logging: true,
-      synchronize: true,
+      synchronize: false,
       entities: ["**/*.entity.ts"],
     })
     : {
-      type: "postgres",
       url: process.env.DATABASE_URL,
-      type: "postgres",
-      logging: true,
       synchronize: false,
       entities: ["**/*.entity.js"],
+      extra: {
+        ssl: {
+          rejectUnauthorized: false
+        }
+      },
+      ssl: true
     })
+  ,
+  logging: true,
+  username: "postgres",
+  type: "postgres",
+  migrations: ["./dist/migration/*.js"],
+  "cli": {
+    "migrationsDir": "migration"
+  },
 }

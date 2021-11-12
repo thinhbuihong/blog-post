@@ -33,7 +33,7 @@ const main = async () => {
   const app = express();
   app.use(
     cors({
-      origin: "http://localhost:3000",
+      origin: process.env.CORS_CLIENT || "http://localhost:3000",
       credentials: true,
     })
   );
@@ -49,7 +49,7 @@ const main = async () => {
   app.use(
     session({
       store: MongoStore.create({ mongoUrl }),
-      secret: process.env.SESSION_SECRET_DEV_PROD || "",
+      secret: process.env.SESSION_SECRET_DEV_PROD || "asd",
       name: COOKIE_NAME, //name of cookie is saved in browser
       saveUninitialized: false, //dont save empty sessions, right from the start
       resave: false, //true se tu dong luu lai session trong session store ngay ca khi session ko doi #sc
@@ -58,6 +58,7 @@ const main = async () => {
         httpOnly: true, //client cant access the cookie
         secure: __prod__,
         sameSite: "lax", //protection against CSRF
+        domain: process.env.NODE_ENV && ".vercel.app",
       },
     })
   );
