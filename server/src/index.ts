@@ -46,6 +46,7 @@ const main = async () => {
     // useFindAndModify: false,
   });
 
+  app.set("trust proxy", 1);
   app.use(
     session({
       store: MongoStore.create({ mongoUrl }),
@@ -57,8 +58,7 @@ const main = async () => {
         maxAge: 1000 * 60 * 60,
         httpOnly: true, //client cant access the cookie
         secure: __prod__,
-        sameSite: "lax", //protection against CSRF
-        domain: process.env.NODE_ENV && ".vercel.app",
+        sameSite: "none", //protection against CSRF
       },
     })
   );
