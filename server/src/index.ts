@@ -58,7 +58,7 @@ const main = async () => {
         maxAge: 1000 * 60 * 60,
         httpOnly: true, //client cant access the cookie
         secure: __prod__,
-        sameSite: "none", //protection against CSRF
+        sameSite: __prod__ ? "none" : undefined, //protection against CSRF
       },
     })
   );
@@ -66,7 +66,7 @@ const main = async () => {
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [HelloResolver, UserResolver, PostResolver],
-      validate: false,
+      validate: true,
     }),
     context: ({ req, res }): Context => ({
       req,

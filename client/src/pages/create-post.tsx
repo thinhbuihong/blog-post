@@ -1,7 +1,7 @@
 import { useCheckAuth } from "../utils/useCheckAuth";
 import { Flex, Spinner, Box, Button } from "@chakra-ui/react";
 import Layout from "../components/Layout";
-import { Formik, Form } from "formik";
+import { Formik, Form, FormikHelpers } from "formik";
 
 import NextLink from "next/link";
 import {
@@ -11,7 +11,8 @@ import {
 } from "../generated/graphql";
 import router from "next/router";
 import InputField from "../components/inputField";
-import { Reference } from "@apollo/client";
+import { ApolloError, Reference } from "@apollo/client";
+import { mapFieldErrorsApollo } from "../helpers/mapFieldErrors";
 
 const CreatePost = () => {
   const { data: authData, loading: authLoading } = useCheckAuth();
@@ -20,39 +21,48 @@ const CreatePost = () => {
 
   const [createPost, _] = useCreatePostMutation();
 
-  const onCreatePostSubmit = async (values: CreatePostInput) => {
-    await createPost({
-      variables: { createPostInput: values },
-      update(cache, { data }) {
-        cache.modify({
-          fields: {
-            posts(
-              existing: Omit<PaginatedPosts, "paginatedPosts"> & {
-                paginatedPosts: Reference[];
-              }
-            ) {
-              if (data?.createPost.success && data.createPost.post) {
-                // Post:new_id
-                const newPostRef = cache.identify(data.createPost.post);
+  const onCreatePostSubmit = async (
+    values: CreatePostInput,
+    { setErrors }: FormikHelpers<CreatePostInput>
+  ) => {
+    try {
+      await createPost({
+        variables: { createPostInput: values },
+        update(cache, { data }) {
+          cache.modify({
+            fields: {
+              posts(
+                existing: Omit<PaginatedPosts, "paginatedPosts"> & {
+                  paginatedPosts: Reference[];
+                }
+              ) {
+                if (data?.createPost.success && data.createPost.post) {
+                  // Post:new_id
+                  const newPostRef = cache.identify(data.createPost.post);
 
-                const newPostsAfterCreation = {
-                  ...existing,
-                  totalCount: existing.totalCount + 1,
-                  paginatedPosts: [
-                    { __ref: newPostRef },
-                    ...existing.paginatedPosts, // [{__ref: 'Post:1'}, {__ref: 'Post:2'}]
-                  ],
-                };
+                  const newPostsAfterCreation = {
+                    ...existing,
+                    totalCount: existing.totalCount + 1,
+                    paginatedPosts: [
+                      { __ref: newPostRef },
+                      ...existing.paginatedPosts, // [{__ref: 'Post:1'}, {__ref: 'Post:2'}]
+                    ],
+                  };
 
-                return newPostsAfterCreation;
-              }
-              return existing;
+                  return newPostsAfterCreation;
+                }
+                return existing;
+              },
             },
-          },
-        });
-      },
-    });
-    router.push("/");
+          });
+        },
+      });
+      router.push("/");
+    } catch (error) {
+      if (error instanceof ApolloError) {
+        setErrors(mapFieldErrorsApollo(error));
+      }
+    }
   };
 
   if (authLoading || (!authLoading && !authData?.currentUser)) {

@@ -1,3 +1,4 @@
+import { ApolloError } from "@apollo/client";
 import { Button } from "@chakra-ui/button";
 import { Flex } from "@chakra-ui/layout";
 import { useToast } from "@chakra-ui/react";
@@ -12,7 +13,7 @@ import {
   RegisterInput,
   useRegisrerMutation,
 } from "../generated/graphql";
-import { mapFieldErrors } from "../helpers/mapFieldErrors";
+import { mapFieldErrorsApollo } from "../helpers/mapFieldErrors";
 import { useCheckAuth } from "../utils/useCheckAuth";
 // import { registerMutation } from "../graphql-client/mutations/mutations";
 
@@ -37,32 +38,36 @@ const Register = () => {
     values: RegisterInput,
     { setErrors, resetForm }: FormikHelpers<RegisterInput>
   ) => {
-    const response = await registerUser({
-      variables: {
-        registerInput: values,
-      },
-      update(cache, { data }) {
-        if (data?.register.success) {
-          cache.writeQuery<CurrentUserQuery>({
-            query: CurrentUserDocument,
-            data: { currentUser: data.register.user },
-          });
-        }
-      },
-    });
-
-    if (response.data?.register.errors) {
-      setErrors(mapFieldErrors(response.data.register.errors));
-    } else {
-      resetForm();
-      toast({
-        title: "welcome",
-        description: "logged in successfully",
-        status: "success",
-        duration: 2000,
-        isClosable: true,
+    try {
+      await registerUser({
+        variables: {
+          registerInput: values,
+        },
+        update(cache, { data }) {
+          if (data?.register.success) {
+            cache.writeQuery<CurrentUserQuery>({
+              query: CurrentUserDocument,
+              data: { currentUser: data.register.user },
+            });
+          }
+        },
       });
-      router.push("/");
+
+      {
+        resetForm();
+        toast({
+          title: "welcome",
+          description: "logged in successfully",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+        });
+        router.push("/");
+      }
+    } catch (error) {
+      if (error instanceof ApolloError) {
+        setErrors(mapFieldErrorsApollo(error));
+      }
     }
   };
 

@@ -1,6 +1,4 @@
 import { hash, verify } from "argon2";
-import { plainToClass } from "class-transformer";
-import { validate } from "class-validator";
 import {
   Arg,
   Ctx,
@@ -22,7 +20,6 @@ import { ForgotPasswordInput } from "../types/ForgotPassword";
 import { LoginInput } from "../types/LoginInput";
 import { RegisterInput } from "../types/RegisterInput";
 import { UserMutationResponse } from "../types/UserMutationResponse";
-import { mapFieldErrors } from "../utils/mapFieldErros";
 import { sendEmail } from "../utils/sendEmail";
 
 @Resolver((_of) => User)
@@ -56,20 +53,6 @@ export class UserResolver {
     @Arg("registerInput") registerInput: RegisterInput,
     @Ctx() { req }: Context
   ): Promise<UserMutationResponse> {
-    const user = plainToClass(User, registerInput, {
-      excludeExtraneousValues: true,
-    });
-    const errors = await validate(user);
-    if (errors.length > 0) {
-      console.log("validation failed. errors: ", errors);
-      return {
-        code: 400,
-        success: false,
-        message: "validation failed",
-        errors: mapFieldErrors(errors),
-      };
-    }
-
     try {
       const { username, password, email } = registerInput;
       const exitingUser = await User.findOne({
@@ -120,24 +103,6 @@ export class UserResolver {
     @Arg("loginInput") { password, usernameOrEmail }: LoginInput,
     @Ctx() { req }: Context
   ): Promise<UserMutationResponse> {
-    const user = plainToClass(
-      User,
-      { password, usernameOrEmail },
-      {
-        excludeExtraneousValues: true,
-      }
-    );
-    const errors = await validate(user, { skipMissingProperties: true });
-    if (errors.length > 0) {
-      console.log("validation failed. errors: ", errors);
-      return {
-        code: 400,
-        success: false,
-        message: "validation failed",
-        errors: mapFieldErrors(errors),
-      };
-    }
-
     try {
       const existingUser = await User.findOne(
         usernameOrEmail.includes("@")
