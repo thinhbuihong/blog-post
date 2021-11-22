@@ -1,7 +1,7 @@
 import { useCheckAuth } from "../utils/useCheckAuth";
 import { Flex, Spinner, Box, Button } from "@chakra-ui/react";
 import Layout from "../components/Layout";
-import { Formik, Form, FormikHelpers } from "formik";
+import { Formik, Form, FormikHelpers, withFormik, FormikErrors } from "formik";
 
 import NextLink from "next/link";
 import {
@@ -10,20 +10,45 @@ import {
   useCreatePostMutation,
 } from "../generated/graphql";
 import router from "next/router";
-import InputField from "../components/inputField";
 import { ApolloError, Reference } from "@apollo/client";
 import { mapFieldErrorsApollo } from "../helpers/mapFieldErrors";
+import DraftEditor from "../components/Editor";
+import { convertToRaw, EditorState } from "draft-js";
+import CreatePostForm from "../components/forms/CreatePostForm";
 
 const CreatePost = () => {
   const { data: authData, loading: authLoading } = useCheckAuth();
-
-  const initialValues = { title: "", text: "" };
+  // const initialValues = { title: "", text: "" };
 
   const [createPost, _] = useCreatePostMutation();
 
+  const formikEnhancer = withFormik({
+    mapPropsToValues: (_props) => ({
+      editorState: EditorState.createEmpty(),
+      title: "",
+    }),
+    handleSubmit: (
+      values: { editorState: EditorState; title: string },
+      { setErrors }
+    ) => {
+      const rawText = convertToRaw(values.editorState.getCurrentContent());
+      onCreatePostSubmit(
+        {
+          title: values.title,
+          text: JSON.stringify(rawText),
+        },
+        { setErrors }
+      );
+    },
+  });
+
+  const MyEnhancedForm = formikEnhancer(CreatePostForm);
+
   const onCreatePostSubmit = async (
     values: CreatePostInput,
-    { setErrors }: FormikHelpers<CreatePostInput>
+    {
+      setErrors,
+    }: { setErrors: (errors: FormikErrors<CreatePostInput>) => void }
   ) => {
     try {
       await createPost({
@@ -74,7 +99,8 @@ const CreatePost = () => {
   } else {
     return (
       <Layout>
-        <Formik initialValues={initialValues} onSubmit={onCreatePostSubmit}>
+        <MyEnhancedForm />
+        {/* <Formik initialValues={initialValues} onSubmit={onCreatePostSubmit}>
           {({ isSubmitting }) => (
             <Form>
               <InputField name="title" placeholder="Title" label="Title" />
@@ -96,13 +122,14 @@ const CreatePost = () => {
                 >
                   Create Post
                 </Button>
-                <NextLink href="/">
-                  <Button>Go back to Homepage</Button>
-                </NextLink>
-              </Flex>
-            </Form>
-          )}
-        </Formik>
+                </Flex>
+                
+                </Form>
+                )}
+              </Formik> */}
+        <NextLink href="/">
+          <Button>Go back to Homepage</Button>
+        </NextLink>
       </Layout>
     );
   }
