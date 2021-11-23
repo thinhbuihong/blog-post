@@ -27,6 +27,7 @@ import { addApolloState, initializeApollo } from "../../lib/apolloClient";
 import { limit } from "../index";
 import NextLink from "next/link";
 import PostEditDeleteButtons from "../../components/PostEditDeleteButton";
+import { convertContentToHTML } from "../../utils/convertContentToHTML";
 
 const Post: NextPage = () => {
   const router = useRouter();
@@ -61,7 +62,17 @@ const Post: NextPage = () => {
   return (
     <Layout>
       <Heading mb={4}>{data.post.title}</Heading>
-      <Box mb={4}>{data.post.text}</Box>
+
+      {data.post.text.match(/^{"blocks":/) ? (
+        <Box
+          className="DraftEditor-root"
+          mb={4}
+          dangerouslySetInnerHTML={convertContentToHTML(data.post.text)}
+        ></Box>
+      ) : (
+        <Box mb={4}>{data.post.text}</Box>
+      )}
+
       <Flex justifyContent="space-between" alignItems="center">
         <PostEditDeleteButtons
           postId={data.post.id}
@@ -96,18 +107,20 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps<
-  { [key: string]: any },
-  { id: string }
-> = async ({ params }: GetStaticPropsContext) => {
-  const apolloClient = initializeApollo({});
+export const getStaticProps: GetStaticProps =
+  // <
+  //   { [key: string]: any },
+  //   { id: string }
+  // >
+  async ({ params }: GetStaticPropsContext) => {
+    const apolloClient = initializeApollo({});
 
-  await apolloClient.query<PostQuery>({
-    query: PostDocument,
-    variables: { id: params?.id },
-  });
+    await apolloClient.query<PostQuery>({
+      query: PostDocument,
+      variables: { id: params?.id },
+    });
 
-  return addApolloState(apolloClient, { props: {} });
-};
+    return addApolloState(apolloClient, { props: {} });
+  };
 
 export default Post;

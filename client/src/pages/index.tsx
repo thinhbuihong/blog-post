@@ -13,6 +13,7 @@ import {
   usePostsQuery,
 } from "../generated/graphql";
 import { addApolloState, initializeApollo } from "../lib/apolloClient";
+import { convertContentToHTML } from "../utils/convertContentToHTML";
 
 export const limit = 3;
 
@@ -51,7 +52,18 @@ const Index = () => {
 
                 <Text>posted by {post.user.username}</Text>
                 <Flex align="center">
-                  <Text mt={4}>{post.textSnippet}</Text>
+                  {post.textSnippet.match(/^{"blocks":/) ? (
+                    <Box
+                      className="DraftEditor-root text-snippet"
+                      mt={4}
+                      dangerouslySetInnerHTML={convertContentToHTML(
+                        post.textSnippet
+                      )}
+                    ></Box>
+                  ) : (
+                    <Text mt={4}>{post.textSnippet}</Text>
+                  )}
+
                   <Box ml="auto">
                     {currentUserData?.currentUser?.id === post.user.id && (
                       <PostEditDeleteButtons

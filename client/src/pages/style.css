@@ -106,3 +106,12 @@
   border: 1px solid #aaa;
   color: #555;
 }
+
+.text-snippet {
+    width:100%; 
+		/* height: ; */
+		max-height: 30vh;
+    overflow:hidden; 
+    text-overflow:ellipsis;
+    white-space:nowrap; 
+}

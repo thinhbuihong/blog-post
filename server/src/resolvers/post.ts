@@ -32,6 +32,9 @@ registerEnumType(VoteType, {
 export class PostResolver {
   @FieldResolver((_return) => String)
   textSnippet(@Root() root: Post) {
+    if (root.text.match(/^{"blocks":/)) {
+      return root.text;
+    }
     return root.text.slice(0, 50);
   }
 
