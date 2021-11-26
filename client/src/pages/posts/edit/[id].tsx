@@ -14,13 +14,19 @@ import {
   Button,
   Flex,
   Spinner,
+  useToast,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
-import { Formik, Form } from "formik";
+import { Formik, Form, withFormik, FormikErrors } from "formik";
 import InputField from "../../../components/inputField";
+import { convertFromRaw, convertToRaw, EditorState } from "draft-js";
+import { ApolloError } from "@apollo/client";
+import { mapFieldErrorsApollo } from "../../../helpers/mapFieldErrors";
+import CreatePostForm from "../../../components/forms/CreatePostForm";
 
 const PostEdit = () => {
   const router = useRouter();
+  const toast = useToast();
   const postId = router.query.id as string;
 
   const { data: currentUserData, loading: currentUserLoading } =
@@ -32,16 +38,32 @@ const PostEdit = () => {
 
   const [updatePost] = useUpdatePostMutation();
 
-  const onUpdatePostSubmit = async (values: Omit<UpdatePostInput, "id">) => {
-    await updatePost({
-      variables: {
-        updatePostInput: {
-          id: postId,
-          ...values,
+  const onUpdatePostSubmit = async (
+    values: Omit<UpdatePostInput, "id">,
+    { setErrors }: { setErrors: (erros: FormikErrors<UpdatePostInput>) => void }
+  ) => {
+    try {
+      await updatePost({
+        variables: {
+          updatePostInput: {
+            id: postId,
+            ...values,
+          },
         },
-      },
-    });
-    router.back();
+      });
+      toast({
+        title: "Update post",
+        description: "Update post successfully",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+      router.back();
+    } catch (error) {
+      if (error instanceof ApolloError) {
+        setErrors(mapFieldErrorsApollo(error));
+      }
+    }
   };
 
   if (currentUserLoading || postLoading)
@@ -86,15 +108,38 @@ const PostEdit = () => {
         </Box>
       </Layout>
     );
+  ////////////////////////////
+  const contentState = convertFromRaw(JSON.parse(postData.post.text));
 
-  const initialValues = {
-    title: postData.post.title,
-    text: postData.post.text,
-  };
+  const formikEnhancer = withFormik({
+    mapPropsToValues: (_props) => ({
+      editorState: EditorState.createWithContent(contentState),
+      title: postData.post!.title,
+    }),
+    handleSubmit: (
+      values: { editorState: EditorState; title: string },
+      { setErrors }
+    ) => {
+      const rawText = convertToRaw(values.editorState.getCurrentContent());
+      onUpdatePostSubmit(
+        {
+          title: values.title,
+          text: JSON.stringify(rawText),
+        },
+        { setErrors }
+      );
+    },
+  });
+
+  const UpdatePostEnhancedForm = formikEnhancer(CreatePostForm);
 
   return (
     <Layout>
-      <Formik initialValues={initialValues} onSubmit={onUpdatePostSubmit}>
+      <UpdatePostEnhancedForm />
+      <NextLink href="/">
+        <Button>Go back to Homepage</Button>
+      </NextLink>
+      {/* <Formik initialValues={initialValues} onSubmit={onUpdatePostSubmit}>
         {({ isSubmitting }) => (
           <Form>
             <InputField name="title" placeholder="Title" label="Title" />
@@ -118,7 +163,7 @@ const PostEdit = () => {
             </Flex>
           </Form>
         )}
-      </Formik>
+      </Formik> */}
     </Layout>
   );
 };

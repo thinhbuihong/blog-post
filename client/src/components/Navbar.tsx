@@ -1,6 +1,7 @@
 // import { Reference } from "@apollo/client";
 import { Button } from "@chakra-ui/button";
 import { Box, Flex, Heading, Link } from "@chakra-ui/layout";
+import { useToast } from "@chakra-ui/toast";
 import NextLink from "next/link";
 import {
   // CurrentUserDocument,
@@ -13,6 +14,7 @@ import { initializeApollo } from "../lib/apolloClient";
 const Navbar = () => {
   const { data, loading } = useCurrentUserQuery();
   const [logout, { loading: logoutLoading }] = useLogoutMutation();
+  const toast = useToast();
 
   const logoutUser = async () => {
     await logout({
@@ -47,6 +49,13 @@ const Navbar = () => {
     });
     const apolloClient = initializeApollo({});
     apolloClient.resetStore();
+    toast({
+      title: "Logout",
+      // description: "logged in successfully",
+      status: "warning",
+      duration: 2000,
+      isClosable: true,
+    });
   };
 
   let body;

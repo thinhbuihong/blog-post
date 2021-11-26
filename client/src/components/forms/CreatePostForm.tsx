@@ -1,3 +1,5 @@
+import { EditorState } from "draft-js";
+import { FormikProps } from "formik";
 import DraftEditor from "../Editor";
 import InputField from "../inputField";
 
@@ -8,7 +10,7 @@ const CreatePostForm = ({
   handleReset,
   setFieldValue,
   isSubmitting,
-}: any) => (
+}: FormikProps<{ title: string; editorState: EditorState }>) => (
   <form onSubmit={handleSubmit} className="createPostForm">
     <InputField name="title" placeholder="Title" label="Title" />
 

@@ -1,5 +1,5 @@
 import { useCheckAuth } from "../utils/useCheckAuth";
-import { Flex, Spinner, Box, Button } from "@chakra-ui/react";
+import { Flex, Spinner, Box, Button, useToast } from "@chakra-ui/react";
 import Layout from "../components/Layout";
 import { Formik, Form, FormikHelpers, withFormik, FormikErrors } from "formik";
 
@@ -12,12 +12,12 @@ import {
 import router from "next/router";
 import { ApolloError, Reference } from "@apollo/client";
 import { mapFieldErrorsApollo } from "../helpers/mapFieldErrors";
-import DraftEditor from "../components/Editor";
 import { convertToRaw, EditorState } from "draft-js";
 import CreatePostForm from "../components/forms/CreatePostForm";
 
 const CreatePost = () => {
   const { data: authData, loading: authLoading } = useCheckAuth();
+  const toast = useToast();
   // const initialValues = { title: "", text: "" };
 
   const [createPost, _] = useCreatePostMutation();
@@ -27,12 +27,12 @@ const CreatePost = () => {
       editorState: EditorState.createEmpty(),
       title: "",
     }),
-    handleSubmit: (
+    handleSubmit: async (
       values: { editorState: EditorState; title: string },
       { setErrors }
     ) => {
       const rawText = convertToRaw(values.editorState.getCurrentContent());
-      onCreatePostSubmit(
+      await onCreatePostSubmit(
         {
           title: values.title,
           text: JSON.stringify(rawText),
@@ -82,10 +82,24 @@ const CreatePost = () => {
           });
         },
       });
+      toast({
+        title: "Create post",
+        description: "Create post successfully",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
       router.push("/");
     } catch (error) {
       if (error instanceof ApolloError) {
         setErrors(mapFieldErrorsApollo(error));
+        toast({
+          title: "Create post",
+          description: "invalid input",
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+        });
       }
     }
   };
