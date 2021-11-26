@@ -1,19 +1,18 @@
-import { useCheckAuth } from "../utils/useCheckAuth";
-import { Flex, Spinner, Box, Button, useToast } from "@chakra-ui/react";
-import Layout from "../components/Layout";
-import { Formik, Form, FormikHelpers, withFormik, FormikErrors } from "formik";
-
+import { ApolloError, Reference } from "@apollo/client";
+import { Button, Flex, Spinner, useToast } from "@chakra-ui/react";
+import { convertToRaw, EditorState } from "draft-js";
+import { FormikErrors, withFormik } from "formik";
 import NextLink from "next/link";
+import router from "next/router";
+import CreatePostForm from "../components/forms/CreatePostForm";
+import Layout from "../components/Layout";
 import {
   CreatePostInput,
   PaginatedPosts,
   useCreatePostMutation,
 } from "../generated/graphql";
-import router from "next/router";
-import { ApolloError, Reference } from "@apollo/client";
 import { mapFieldErrorsApollo } from "../helpers/mapFieldErrors";
-import { convertToRaw, EditorState } from "draft-js";
-import CreatePostForm from "../components/forms/CreatePostForm";
+import { useCheckAuth } from "../utils/useCheckAuth";
 
 const CreatePost = () => {
   const { data: authData, loading: authLoading } = useCheckAuth();

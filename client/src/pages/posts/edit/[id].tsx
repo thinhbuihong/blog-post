@@ -1,11 +1,4 @@
-import { useRouter } from "next/router";
-import Layout from "../../../components/Layout";
-import {
-  UpdatePostInput,
-  useCurrentUserQuery,
-  usePostQuery,
-  useUpdatePostMutation,
-} from "../../../generated/graphql";
+import { ApolloError } from "@apollo/client";
 import {
   Alert,
   AlertIcon,
@@ -16,13 +9,19 @@ import {
   Spinner,
   useToast,
 } from "@chakra-ui/react";
-import NextLink from "next/link";
-import { Formik, Form, withFormik, FormikErrors } from "formik";
-import InputField from "../../../components/inputField";
 import { convertFromRaw, convertToRaw, EditorState } from "draft-js";
-import { ApolloError } from "@apollo/client";
-import { mapFieldErrorsApollo } from "../../../helpers/mapFieldErrors";
+import { FormikErrors, withFormik } from "formik";
+import NextLink from "next/link";
+import { useRouter } from "next/router";
 import CreatePostForm from "../../../components/forms/CreatePostForm";
+import Layout from "../../../components/Layout";
+import {
+  UpdatePostInput,
+  useCurrentUserQuery,
+  usePostQuery,
+  useUpdatePostMutation,
+} from "../../../generated/graphql";
+import { mapFieldErrorsApollo } from "../../../helpers/mapFieldErrors";
 
 const PostEdit = () => {
   const router = useRouter();
