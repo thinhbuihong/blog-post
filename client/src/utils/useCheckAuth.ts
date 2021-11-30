@@ -22,7 +22,9 @@ export const useCheckAuth = () => {
         //not logged in yet
         !data?.currentUser &&
         router.route !== "/login" &&
-        router.route !== "/register"
+        router.route !== "/register" &&
+        router.route !== "/forgot-password" &&
+        router.route !== "/change-password"
       ) {
         router.push("/login");
       }

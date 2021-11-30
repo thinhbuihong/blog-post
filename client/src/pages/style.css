@@ -109,10 +109,7 @@ blockquote{
 }
 
 .text-snippet {
-    width:100%; 
-		/* height: ; */
-		max-height: 30vh;
+		max-height: 20vh;
     overflow:hidden; 
     text-overflow:ellipsis;
-    white-space:nowrap; 
 }
