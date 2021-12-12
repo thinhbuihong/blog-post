@@ -109,7 +109,23 @@ blockquote{
 }
 
 .text-snippet {
-		max-height: 20vh;
-    overflow:hidden; 
-    text-overflow:ellipsis;
+	max-height: 20vh;
+	overflow:hidden; 
+	text-overflow:ellipsis;
+}
+
+.inputLink {
+  font-family: '\'Georgia\', serif';
+  margin-right: 10px;
+	border: #08c 1px solid;
+	padding: 3px 15px;
+	border-radius: 4px;
+}
+
+#addLinkButton{
+	background-color: #08c;
+	width: 4em;
+	font-size: small;
+	padding: 0px;
+	margin: 0 0 0.5em 0;
 }
