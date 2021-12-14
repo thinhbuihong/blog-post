@@ -1,6 +1,5 @@
 import {
   CompositeDecorator,
-  convertToRaw,
   DraftBlockType,
   DraftHandleValue,
   Editor,
@@ -154,7 +153,6 @@ const DraftEditor = ({ editorState, onChange }: DraftEditorProps) => {
       <InlineStyleControls
         editorState={editorState}
         onToggle={toggleInlineStyle}
-        setURL={setURL}
       />
 
       <button onClick={promptForLink} id="addLinkButton">
